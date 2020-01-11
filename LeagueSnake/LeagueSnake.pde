@@ -6,12 +6,12 @@
 class Segment {
 
 //Add x and y member variables. They will hold the corner location of each segment of the snake.
-int segmentX = 0;
-int segmentY = 0;
+int x = 0;
+int y = 0;
 // Add a constructor with parameters to initialize each variable.
-public Segment (int segmentX, int segmentY){
-segmentX = this.segmentX;
-segmentY = this.segmentY;
+public Segment (int x, int y){
+this.x = x;
+this.y = y;
 }
 }
 
@@ -25,7 +25,7 @@ int foodX;
 int foodY;
 int direction = UP;
 int eaten = 0;
-
+ArrayList<Segment> tail = new ArrayList<Segment>();
 
 
 //*
@@ -72,7 +72,8 @@ void drawSnake() {
   //Draw the head of the snake followed by its tail
   noStroke();
   fill(355, 355, 355);
-  rect(head.segmentX, head.segmentY, 10, 10);
+  rect(head.x, head.y, 10, 10);
+  manageTail();
 }
 
 
@@ -83,18 +84,31 @@ void drawSnake() {
 
 void drawTail() {
   //Draw each segment of the tail 
-
+  for(int i = 0; i < tail.size(); i++){
+    noStroke();
+    fill(355, 355, 355);
+    rect(tail.get(i).x, tail.get(i).y, 10, 10);
+  }
 }
 
 void manageTail() {
   //After drawing the tail, add a new segment at the "start" of the tail and remove the one at the "end" 
   //This produces the illusion of the snake tail moving.
-  
+  checkTailCollision();
+  drawTail();
+  tail.add(new Segment(head.x, head.y));
+  tail.remove(0);
 }
 
 void checkTailCollision() {
   //If the snake crosses its own tail, shrink the tail back to one segment
-  
+  for(int i = 0; i < tail.size(); i++){
+    if(head.x == tail.get(i).x && head.y == tail.get(i).y){
+      eaten = 1;
+      tail.clear();
+      tail.add(new Segment(head.x, head.y));
+    }
+  }
 }
 
 
@@ -132,19 +146,19 @@ void move() {
   switch(direction) {
   case UP:
     // move head up here
-    head.segmentY = head.segmentY - 10;
+    head.y = head.y - 10;
     break;
   case DOWN:
     // move head down here 
-    head.segmentY = head.segmentY + 10;
+    head.y = head.y + 10;
     break;
   case LEFT:
    // figure it out 
-   head.segmentX = head.segmentX - 10;
+   head.x = head.x - 10;
     break;
   case RIGHT:
     // mystery code goes here 
-    head.segmentX = head.segmentX + 10;
+    head.x = head.x + 10;
     break;
   }
   checkBoundaries();
@@ -152,14 +166,14 @@ void move() {
 
 void checkBoundaries() {
  //If the snake leaves the frame, make it reappear on the other side
- if(head.segmentX > 490){
-  head.segmentX = 0;
- }else if(head.segmentX < 0){
-  head.segmentX = 490; 
- }else  if(head.segmentY > 490){
-  head.segmentY = 0;
- }else if(head.segmentY < 0){
-  head.segmentY = 490; 
+ if(head.x > 490){
+  head.x = 0;
+ }else if(head.x < 0){
+  head.x = 490; 
+ }else  if(head.y > 490){
+  head.y = 0;
+ }else if(head.y < 0){
+  head.y = 490; 
  }
 }
 
@@ -167,8 +181,9 @@ void checkBoundaries() {
 
 void eat() {
   //When the snake eats the food, its tail should grow and more food appear
-if(head.segmentX == foodX && head.segmentY == foodY){
+if(head.x == foodX && head.y == foodY){
   eaten = eaten + 1;
   dropFood();
+  tail.add(new Segment(head.x, head.y));
 }
 }
